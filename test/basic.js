@@ -357,6 +357,46 @@ describe('request-debug', function() {
         });
     });
 
+    it('should capture POST data and 404 responses', function(done) {
+        request({
+            uri    : lib.urls.http + '/bottom',
+            method : 'POST',
+            form   : {
+                formKey : 'formData'
+            }
+        }, function(err, res, body) {
+            should.not.exist(err);
+            lib.fixVariableHeaders();
+            lib.requests.should.eql([
+                {
+                    request : {
+                        uri     : lib.urls.http + '/bottom',
+                        method  : 'POST',
+                        headers : {
+                            host             : 'localhost',
+                            'content-length' : 16,
+                            'content-type'   : 'application/x-www-form-urlencoded; charset=utf-8'
+                        },
+                        body : 'formKey=formData'
+                    }
+                }, {
+                    response : {
+                        headers : {
+                            connection       : 'keep-alive',
+                            'content-length' : '20',
+                            'content-type'   : 'text/html; charset=utf-8',
+                            date             : '<date>',
+                            'x-powered-by'   : 'Express'
+                        },
+                        statusCode : 404,
+                        body       : 'Cannot POST /bottom\n'
+                    }
+                }
+            ]);
+            done();
+        });
+    });
+
     it('should work with the result of request.defaults()', function(done) {
         proto.should.have.property('_initBeforeDebug');
         proto.init = proto._initBeforeDebug;
