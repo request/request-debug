@@ -29,8 +29,8 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
-                        uri : lib.urls.http + '/bottom',
-                        method : 'GET',
+                        uri     : lib.urls.http + '/bottom',
+                        method  : 'GET',
                         headers : {
                             host : 'localhost'
                         }
@@ -61,8 +61,8 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
-                        uri : lib.urls.http + '/bottom',
-                        method : 'GET',
+                        uri     : lib.urls.http + '/bottom',
+                        method  : 'GET',
                         headers : {
                             host : 'localhost'
                         }
@@ -376,8 +376,8 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
-                        uri : lib.urls.http + '/bottom',
-                        method : 'GET',
+                        uri     : lib.urls.http + '/bottom',
+                        method  : 'GET',
                         headers : {
                             host : 'localhost'
                         }
