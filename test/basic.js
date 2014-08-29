@@ -4,13 +4,12 @@ var lib     = require('./lib'),
     should  = require('should');
 
 describe('request-debug', function() {
+    var proto = request.Request.prototype;
+
     before(function() {
         lib.enableDebugging(request);
         lib.startServers();
 
-        // NOTE: Cannot call request-debug on an object returned from
-        // request.defaults, because it doesn't have the Request property
-        // anymore
         request = request.defaults({
             headers : {
                 host : 'localhost'
@@ -337,6 +336,50 @@ describe('request-debug', function() {
                         headers : {
                             authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
                             host          : 'localhost:' + lib.ports.http
+                        }
+                    }
+                }, {
+                    response : {
+                        headers : {
+                            connection       : 'keep-alive',
+                            'content-length' : '10',
+                            'content-type'   : 'text/html; charset=utf-8',
+                            date             : '<date>',
+                            etag             : 'W/"<etag>"',
+                            'x-powered-by'   : 'Express'
+                        },
+                        statusCode : 200,
+                        body       : 'Request OK'
+                    }
+                }
+            ]);
+            done();
+        });
+    });
+
+    it('should work with the result of request.defaults()', function(done) {
+        proto.should.have.property('_initBeforeDebug');
+        proto.init = proto._initBeforeDebug;
+        delete proto._initBeforeDebug;
+
+        request = require('request').defaults({
+            headers : {
+                host : 'localhost'
+            },
+        });
+
+        lib.enableDebugging(request);
+
+        request(lib.urls.http + '/bottom', function(err, res, body) {
+            should.not.exist(err);
+            lib.fixVariableHeaders();
+            lib.requests.should.eql([
+                {
+                    request : {
+                        uri : lib.urls.http + '/bottom',
+                        method : 'GET',
+                        headers : {
+                            host : 'localhost'
                         }
                     }
                 }, {
