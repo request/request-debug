@@ -5,7 +5,7 @@ node_js:
  - "0.8"
 env:
  - REQUEST_VERSION=2.40.0
- - REQUEST_VERSION=2.35.0
+ - REQUEST_VERSION=2.34.0
  - REQUEST_VERSION=2.30.0
 before_script:
  - rm -r node_modules/request/
