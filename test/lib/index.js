@@ -88,7 +88,11 @@ exports.startServers = function() {
 
     function handleRequest(req, res) {
         if (req.params.level == 'bottom') {
-            res.send('Request OK');
+            if (req.header('accept') == 'application/json') {
+                res.json({ key : 'value' });
+            } else {
+                res.send('Request OK');
+            }
             return;
         }
         var level = (req.params.level == 'top' ? 'middle' : 'bottom');

@@ -397,6 +397,44 @@ describe('request-debug', function() {
         });
     });
 
+    it('should capture JSON responses', function(done) {
+        request({
+            uri  : lib.urls.http + '/bottom',
+            json : true
+        }, function(err, res, body) {
+            should.not.exist(err);
+            lib.fixVariableHeaders();
+            lib.requests.should.eql([
+                {
+                    request : {
+                        uri     : lib.urls.http + '/bottom',
+                        method  : 'GET',
+                        headers : {
+                            accept : 'application/json',
+                            host   : 'localhost'
+                        }
+                    }
+                }, {
+                    response : {
+                        headers : {
+                            connection       : 'keep-alive',
+                            'content-length' : '15',
+                            'content-type'   : 'application/json; charset=utf-8',
+                            date             : '<date>',
+                            etag             : 'W/"<etag>"',
+                            'x-powered-by'   : 'Express'
+                        },
+                        statusCode : 200,
+                        body       : {
+                            key : 'value'
+                        }
+                    }
+                }
+            ]);
+            done();
+        });
+    });
+
     it('should work with the result of request.defaults()', function(done) {
         proto.should.have.property('_initBeforeDebug');
         proto.init = proto._initBeforeDebug;
