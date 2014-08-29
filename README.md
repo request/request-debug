@@ -110,3 +110,10 @@ following:
      body: 'You are logged in as: admin' } }
 REQUEST RESULTS: null 200 'You are logged in as: admin'
 ```
+
+## Compatibility
+
+Tested with Node.js versions 0.8.x, 0.10.x, and 0.11.x on Travis.
+
+Does not work with `request` versions older than 2.22.0 (July 2013).  Tests
+don't start passing until version 2.28.0 (December 2013).
