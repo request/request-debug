@@ -23,14 +23,14 @@
     },
     "main"            : "index.js",
     "devDependencies" : {
-        "express"       : "^4.8.6",
-        "mocha"         : "^1.21.4",
-        "passport"      : "^0.2.0",
-        "passport-http" : "^0.2.2",
-        "request"       : "^2.40.0",
-        "should"        : "^4.0.4"
+        "express"       : "~4.8.6",
+        "mocha"         : "~1.21.4",
+        "passport"      : "~0.2.0",
+        "passport-http" : "~0.2.2",
+        "request"       : "~2.40.0",
+        "should"        : "~4.0.4"
     },
     "dependencies" : {
-        "clone" : "^0.1.18"
+        "clone" : "~0.1.18"
     }
 }
