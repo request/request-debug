@@ -46,6 +46,9 @@ var fixHeader = {
     etag : function(val) {
         return val.split('"')[0] + '"<etag>"';
     },
+    connection : function(val) {
+        return val.replace(/^(close|keep-alive)$/, '<close or keep-alive>');
+    },
     authorization : function(val) {
         var arr = val.split(', ');
         if (arr.length > 1) {

@@ -38,7 +38,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -70,7 +70,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -101,7 +101,7 @@ describe('request-debug', function() {
                 }, {
                     redirect : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '41',
                             'content-type'   : 'text/plain; charset=utf-8',
                             date             : '<date>',
@@ -123,7 +123,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -155,7 +155,7 @@ describe('request-debug', function() {
                 }, {
                     redirect : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '62',
                             'content-type'   : 'text/plain; charset=utf-8',
                             date             : '<date>',
@@ -177,7 +177,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -215,7 +215,7 @@ describe('request-debug', function() {
                 }, {
                     auth : {
                         headers : {
-                            connection          : 'keep-alive',
+                            connection          : '<close or keep-alive>',
                             date                : '<date>',
                             'transfer-encoding' : 'chunked',
                             'www-authenticate'  : 'Digest realm="Users" <+nonce,qop>',
@@ -236,7 +236,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -274,7 +274,7 @@ describe('request-debug', function() {
                 }, {
                     auth : {
                         headers : {
-                            connection          : 'keep-alive',
+                            connection          : '<close or keep-alive>',
                             date                : '<date>',
                             'transfer-encoding' : 'chunked',
                             'www-authenticate'  : 'Digest realm="Users" <+nonce,qop>',
@@ -295,7 +295,7 @@ describe('request-debug', function() {
                 }, {
                     redirect : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '62',
                             'content-type'   : 'text/plain; charset=utf-8',
                             date             : '<date>',
@@ -318,7 +318,7 @@ describe('request-debug', function() {
                 }, {
                     redirect : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '41',
                             'content-type'   : 'text/plain; charset=utf-8',
                             date             : '<date>',
@@ -341,7 +341,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -382,7 +382,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '20',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
@@ -417,7 +417,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '15',
                             'content-type'   : 'application/json; charset=utf-8',
                             date             : '<date>',
@@ -463,7 +463,7 @@ describe('request-debug', function() {
                 }, {
                     response : {
                         headers : {
-                            connection       : 'keep-alive',
+                            connection       : '<close or keep-alive>',
                             'content-length' : '10',
                             'content-type'   : 'text/html; charset=utf-8',
                             date             : '<date>',
