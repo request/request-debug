@@ -70,6 +70,13 @@ module.exports = exports = function(request, log) {
             return proto._initBeforeDebug.apply(this, arguments);
         };
     }
+
+    if (!request.stopDebugging) {
+        request.stopDebugging = function() {
+            proto.init = proto._initBeforeDebug;
+            delete proto._initBeforeDebug;
+        };
+    }
 };
 
 exports.log = function(type, obj) {

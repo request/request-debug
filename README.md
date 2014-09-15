@@ -47,6 +47,10 @@ If you specify your own handling function, `type` will be one of the following v
 The default handling function writes the data to *stderr* in Node's JSON-like object
 display format.  See the example below for more details.
 
+To disable debugging, call `request.stopDebugging()` (this function only exists
+if debugging has already been enabled).  Any requests that are in progress when
+`stopDebugging()` is called will still generate debug events.
+
 ## Example
 
 ```js

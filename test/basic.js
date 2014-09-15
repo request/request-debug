@@ -478,4 +478,13 @@ describe('request-debug', function() {
             done();
         });
     });
+
+    it('should not capture anything after stopDebugging()', function(done) {
+        request.stopDebugging();
+        request(lib.urls.http + '/bottom', function(err, res, body) {
+            should.not.exist(err);
+            lib.requests.should.eql([]);
+            done();
+        });
+    });
 });
