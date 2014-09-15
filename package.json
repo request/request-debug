@@ -2,7 +2,7 @@
     "name"        : "request-debug",
     "author"      : "James Nylen <jnylen@gmail.com>",
     "description" : "Library to assist with debugging HTTP(s) requests made by the request module.",
-    "version"     : "0.0.2",
+    "version"     : "0.0.3",
     "repository"  : {
         "type" : "git",
         "url"  : "https://github.com/nylen/request-debug"
