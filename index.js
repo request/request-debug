@@ -1,5 +1,7 @@
 var clone = require('clone');
 
+var debugId = 0;
+
 module.exports = exports = function(request, log) {
     log = log || exports.log;
 
@@ -21,10 +23,11 @@ module.exports = exports = function(request, log) {
         proto._initBeforeDebug = proto.init;
 
         proto.init = function() {
-            if (!this._debugHandlersAdded) {
+            if (!this._debugId) {
 
                 this.on('request', function(req) {
                     var data = {
+                        debugId : this._debugId,
                         uri     : this.uri.href,
                         method  : this.method,
                         headers : clone(this.headers)
@@ -41,6 +44,7 @@ module.exports = exports = function(request, log) {
                     } else {
                         // cannot get body since no callback specified
                         log('response', {
+                            debugId    : this._debugId,
                             headers    : clone(res.headers),
                             statusCode : res.statusCode
                         }, this);
@@ -49,6 +53,7 @@ module.exports = exports = function(request, log) {
                 }).on('complete', function(res, body) {
                     if (this.callback) {
                         log('response', {
+                            debugId    : this._debugId,
                             headers    : clone(res.headers),
                             statusCode : res.statusCode,
                             body       : res.body
@@ -58,13 +63,14 @@ module.exports = exports = function(request, log) {
                 }).on('redirect', function() {
                     var type = (this.response.statusCode == 401 ? 'auth' : 'redirect');
                     log(type, {
+                        debugId    : this._debugId,
                         statusCode : this.response.statusCode,
                         headers    : clone(this.response.headers),
                         uri        : this.uri.href
                     }, this);
                 });
 
-                this._debugHandlersAdded = true;
+                this._debugId = ++debugId;
             }
 
             return proto._initBeforeDebug.apply(this, arguments);

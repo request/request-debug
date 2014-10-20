@@ -45,8 +45,11 @@ that generated the event, and `type` will be one of the following values:
   `request` handles this like a redirect, so the same properties will be
   available on the `data` object.
 
-The default handling function writes the data to *stderr* in Node's JSON-like object
-display format.  See the example below for more details.
+You can use the `data.debugId` parameter to match up requests with their
+responses and other events.
+
+The default handling function writes the data to *stderr* in Node's JSON-like
+object display format.  See the example below for more details.
 
 To disable debugging, call `request.stopDebugging()` (this function only exists
 if debugging has already been enabled).  Any requests that are in progress when
@@ -81,30 +84,34 @@ following:
 
 ```js
 { request: 
-   { uri: 'http://nylen.tv/digest.php',
+   { debugId: 1,
+     uri: 'http://nylen.tv/digest.php',
      method: 'GET',
      headers: { host: 'nylen.tv' } } }
 { auth: 
-   { statusCode: 401,
+   { debugId: 1,
+     statusCode: 401,
      headers: 
-      { date: 'Fri, 29 Aug 2014 00:10:11 GMT',
+      { date: 'Mon, 20 Oct 2014 03:34:58 GMT',
         server: 'Apache/2.4.6 (Debian)',
         'x-powered-by': 'PHP/5.5.6-1',
-        'www-authenticate': 'Digest realm="Restricted area",qop="auth",nonce="53ffc4e3f308e",opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
+        'www-authenticate': 'Digest realm="Restricted area",qop="auth",nonce="544482e2556d9",opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
         'content-length': '39',
         'keep-alive': 'timeout=5, max=100',
         connection: 'Keep-Alive',
         'content-type': 'text/html' },
      uri: 'http://nylen.tv/digest.php' } }
 { request: 
-   { uri: 'http://nylen.tv/digest.php',
+   { debugId: 1,
+     uri: 'http://nylen.tv/digest.php',
      method: 'GET',
      headers: 
-      { authorization: 'Digest username="admin", realm="Restricted area", nonce="53ffc4e3f308e", uri="/digest.php", qop=auth, response="d7c6bf1c2657228e146da3edf034a419", nc=00000001, cnonce="4fa4a6af3d1d424397cb2c798d5a97df", opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
+      { authorization: 'Digest username="admin", realm="Restricted area", nonce="544482e2556d9", uri="/digest.php", qop=auth, response="e833c7fa52e8d42fae3ca784b96dfd38", nc=00000001, cnonce="ab6ff3dd95a0449e990a6c8465a6bb26", opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
         host: 'nylen.tv' } } }
 { response: 
-   { headers: 
-      { date: 'Fri, 29 Aug 2014 00:10:12 GMT',
+   { debugId: 1,
+     headers: 
+      { date: 'Mon, 20 Oct 2014 03:34:58 GMT',
         server: 'Apache/2.4.6 (Debian)',
         'x-powered-by': 'PHP/5.5.6-1',
         'content-length': '27',
@@ -113,7 +120,7 @@ following:
         'content-type': 'text/html' },
      statusCode: 200,
      body: 'You are logged in as: admin' } }
-REQUEST RESULTS: null 200 'You are logged in as: admin'
+REQUEST RESULTS: null 200 You are logged in as: admin
 ```
 
 ## Compatibility

@@ -18,6 +18,7 @@ var app,
 exports.ports    = ports;
 exports.requests = [];
 exports.urls     = {};
+exports.debugId  = 0;
 
 for (var proto in ports) {
     exports.urls[proto] = util.format(
@@ -40,6 +41,7 @@ exports.enableDebugging = function(request) {
 
 exports.clearRequests = function() {
     exports.requests = [];
+    exports.debugId++;
 };
 
 var fixHeader = {

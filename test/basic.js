@@ -29,6 +29,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -37,6 +38,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
@@ -61,6 +63,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -69,6 +72,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
@@ -92,6 +96,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/middle',
                         method  : 'GET',
                         headers : {
@@ -100,6 +105,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     redirect : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '41',
@@ -114,6 +120,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -122,6 +129,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
@@ -146,6 +154,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.https + '/middle/http',
                         method  : 'GET',
                         headers : {
@@ -154,6 +163,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     redirect : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '62',
@@ -168,6 +178,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -176,6 +187,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
@@ -206,6 +218,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/auth/bottom',
                         method  : 'GET',
                         headers : {
@@ -214,6 +227,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     auth : {
+                        debugId : lib.debugId,
                         headers : {
                             connection          : '<close or keep-alive>',
                             date                : '<date>',
@@ -226,6 +240,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/auth/bottom',
                         method  : 'GET',
                         headers : {
@@ -235,6 +250,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
@@ -265,6 +281,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.https + '/auth/top/http',
                         method  : 'GET',
                         headers : {
@@ -273,6 +290,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     auth : {
+                        debugId : lib.debugId,
                         headers : {
                             connection          : '<close or keep-alive>',
                             date                : '<date>',
@@ -285,6 +303,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.https + '/auth/top/http',
                         method  : 'GET',
                         headers : {
@@ -294,6 +313,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     redirect : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '62',
@@ -308,6 +328,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/middle',
                         method  : 'GET',
                         headers : {
@@ -317,6 +338,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     redirect : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '41',
@@ -331,6 +353,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -340,6 +363,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
@@ -370,6 +394,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'POST',
                         headers : {
@@ -381,6 +406,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '20',
@@ -407,6 +433,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -416,6 +443,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '15',
@@ -454,6 +482,7 @@ describe('request-debug', function() {
             lib.requests.should.eql([
                 {
                     request : {
+                        debugId : lib.debugId,
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
@@ -462,6 +491,7 @@ describe('request-debug', function() {
                     }
                 }, {
                     response : {
+                        debugId : lib.debugId,
                         headers : {
                             connection       : '<close or keep-alive>',
                             'content-length' : '10',
