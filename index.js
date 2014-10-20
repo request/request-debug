@@ -24,15 +24,15 @@ module.exports = exports = function(request, log) {
             if (!this._debugHandlersAdded) {
 
                 this.on('request', function(req) {
-                    var obj = {
+                    var data = {
                         uri     : this.uri.href,
                         method  : this.method,
                         headers : clone(this.headers)
                     };
                     if (this.body) {
-                        obj.body = this.body.toString('utf8');
+                        data.body = this.body.toString('utf8');
                     }
-                    log('request', obj, this);
+                    log('request', data, this);
 
                 }).on('response', function(res) {
                     if (this.callback) {
@@ -79,8 +79,8 @@ module.exports = exports = function(request, log) {
     }
 };
 
-exports.log = function(type, obj, r) {
+exports.log = function(type, data, r) {
     var toLog = {};
-    toLog[type] = obj;
+    toLog[type] = data;
     console.error(toLog);
 };
