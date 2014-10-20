@@ -32,7 +32,7 @@ module.exports = exports = function(request, log) {
                     if (this.body) {
                         obj.body = this.body.toString('utf8');
                     }
-                    log('request', obj);
+                    log('request', obj, this);
 
                 }).on('response', function(res) {
                     if (this.callback) {
@@ -43,7 +43,7 @@ module.exports = exports = function(request, log) {
                         log('response', {
                             headers    : clone(res.headers),
                             statusCode : res.statusCode
-                        });
+                        }, this);
                     }
 
                 }).on('complete', function(res, body) {
@@ -52,7 +52,7 @@ module.exports = exports = function(request, log) {
                             headers    : clone(res.headers),
                             statusCode : res.statusCode,
                             body       : res.body
-                        });
+                        }, this);
                     }
 
                 }).on('redirect', function() {
@@ -61,7 +61,7 @@ module.exports = exports = function(request, log) {
                         statusCode : this.response.statusCode,
                         headers    : clone(this.response.headers),
                         uri        : this.uri.href
-                    });
+                    }, this);
                 });
 
                 this._debugHandlersAdded = true;
@@ -79,7 +79,7 @@ module.exports = exports = function(request, log) {
     }
 };
 
-exports.log = function(type, obj) {
+exports.log = function(type, obj, r) {
     var toLog = {};
     toLog[type] = obj;
     console.error(toLog);

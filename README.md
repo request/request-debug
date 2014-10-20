@@ -21,12 +21,13 @@ variable from this point.
 You can also specify a function to handle request or response data:
 
 ```js
-require('request-debug')(request, function(type, data) {
+require('request-debug')(request, function(type, data, r) {
     // put your request or response handling logic here
 });
 ```
 
-If you specify your own handling function, `type` will be one of the following values:
+If you specify your own handling function, `r` will be the `Request` instance
+that generated the event, and `type` will be one of the following values:
 
 - **request** - Headers were sent to the server and will be included as
   `data.headers`.  `data.body` may also be present for POST requests.

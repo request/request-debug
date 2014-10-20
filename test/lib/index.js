@@ -28,10 +28,13 @@ for (var proto in ports) {
 
 exports.enableDebugging = function(request) {
     // enable debugging
-    require('../..')(request, function(type, data) {
+    require('../..')(request, function(type, data, r) {
         var obj = {};
         obj[type] = data;
         exports.requests.push(obj);
+        if (typeof r._initBeforeDebug != 'function') {
+            throw new Error('Expected a Request instance here.');
+        }
     });
 };
 
