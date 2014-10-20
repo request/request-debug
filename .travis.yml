@@ -1,12 +1,20 @@
 language: node_js
+
 node_js:
  - "0.11"
  - "0.10"
  - "0.8"
+
 env:
- - REQUEST_VERSION=2.40.0
- - REQUEST_VERSION=2.34.0
  - REQUEST_VERSION=2.30.0
+ - REQUEST_VERSION=2.34.0
+ - REQUEST_VERSION=2.40.0
+ - REQUEST_VERSION=2.41.0
+ - REQUEST_VERSION=2.42.0
+ - REQUEST_VERSION=2.43.0
+ - REQUEST_VERSION=2.44.0
+ - REQUEST_VERSION=2.45.0
+
 before_script:
  - rm -r node_modules/request/
  - npm install request@$REQUEST_VERSION
