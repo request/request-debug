@@ -5,10 +5,10 @@
     "version"     : "0.1.0",
     "repository"  : {
         "type" : "git",
-        "url"  : "https://github.com/nylen/request-debug"
+        "url"  : "https://github.com/request/request-debug"
     },
     "bugs" : {
-        "url" : "https://github.com/nylen/request-debug/issues"
+        "url" : "https://github.com/request/request-debug/issues"
     },
     "license"  : "MIT",
     "keywords" : [

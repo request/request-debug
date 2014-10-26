@@ -1,4 +1,4 @@
-# request-debug [![Build status](https://img.shields.io/travis/nylen/request-debug.svg?style=flat)](https://travis-ci.org/nylen/request-debug) [![npm package](http://img.shields.io/npm/v/request-debug.svg?style=flat)](https://www.npmjs.org/package/request-debug)
+# request-debug [![Build status](https://img.shields.io/travis/request/request-debug.svg?style=flat)](https://travis-ci.org/request/request-debug) [![npm package](http://img.shields.io/npm/v/request-debug.svg?style=flat)](https://www.npmjs.org/package/request-debug)
 
 This Node.js module provides an easy way to monitor HTTP(S) requests performed
 by the [`request` module](https://github.com/mikeal/request), and their
