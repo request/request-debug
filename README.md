@@ -1,7 +1,7 @@
 # request-debug [![Build status](https://img.shields.io/travis/request/request-debug.svg?style=flat)](https://travis-ci.org/request/request-debug) [![npm package](http://img.shields.io/npm/v/request-debug.svg?style=flat)](https://www.npmjs.org/package/request-debug)
 
 This Node.js module provides an easy way to monitor HTTP(S) requests performed
-by the [`request` module](https://github.com/mikeal/request), and their
+by the [`request` module](https://github.com/request/request), and their
 responses from external servers.
 
 ## Usage
@@ -83,15 +83,15 @@ Unless you provide your own function as the second parameter to the
 following:
 
 ```js
-{ request: 
+{ request:
    { debugId: 1,
      uri: 'http://nylen.tv/digest.php',
      method: 'GET',
      headers: { host: 'nylen.tv' } } }
-{ auth: 
+{ auth:
    { debugId: 1,
      statusCode: 401,
-     headers: 
+     headers:
       { date: 'Mon, 20 Oct 2014 03:34:58 GMT',
         server: 'Apache/2.4.6 (Debian)',
         'x-powered-by': 'PHP/5.5.6-1',
@@ -101,16 +101,16 @@ following:
         connection: 'Keep-Alive',
         'content-type': 'text/html' },
      uri: 'http://nylen.tv/digest.php' } }
-{ request: 
+{ request:
    { debugId: 1,
      uri: 'http://nylen.tv/digest.php',
      method: 'GET',
-     headers: 
+     headers:
       { authorization: 'Digest username="admin", realm="Restricted area", nonce="544482e2556d9", uri="/digest.php", qop=auth, response="e833c7fa52e8d42fae3ca784b96dfd38", nc=00000001, cnonce="ab6ff3dd95a0449e990a6c8465a6bb26", opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
         host: 'nylen.tv' } } }
-{ response: 
+{ response:
    { debugId: 1,
-     headers: 
+     headers:
       { date: 'Mon, 20 Oct 2014 03:34:58 GMT',
         server: 'Apache/2.4.6 (Debian)',
         'x-powered-by': 'PHP/5.5.6-1',
