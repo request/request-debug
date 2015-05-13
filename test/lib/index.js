@@ -77,6 +77,8 @@ var fixHeader = {
         if (engine == 'iojs' && obj.statusCode == 401) {
             // io.js sends content-length here, Node does not
             return null;
+        } else {
+            return val;
         }
     }
 };
