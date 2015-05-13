@@ -65,6 +65,9 @@ var fixHeader = {
                 }).join(','));
         }
         return val;
+    },
+    referer : function(val) {
+        return null;
     }
 };
 fixHeader['www-authenticate'] = fixHeader.authorization;
@@ -74,8 +77,12 @@ exports.fixVariableHeaders = function() {
         for (var type in req) {
             for (var header in req[type].headers) {
                 if (fixHeader[header]) {
-                    req[type].headers[header] =
-                        fixHeader[header](req[type].headers[header]);
+                    var fixed = fixHeader[header](req[type].headers[header]);
+                    if (fixed === null) {
+                        delete req[type].headers[header];
+                    } else {
+                        req[type].headers[header] = fixed;
+                    }
                 }
             }
         }
