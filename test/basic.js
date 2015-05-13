@@ -124,7 +124,8 @@ describe('request-debug', function() {
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
-                            host : 'localhost:' + lib.ports.http
+                            host : 'localhost:' + lib.ports.http,
+                            referer : 'http://localhost:8480/bottom'
                         }
                     }
                 }, {
@@ -182,7 +183,8 @@ describe('request-debug', function() {
                         uri     : lib.urls.http + '/bottom',
                         method  : 'GET',
                         headers : {
-                            host : 'localhost:' + lib.ports.http
+                            host : 'localhost:' + lib.ports.http,
+                            referer : 'http://localhost:8480/bottom'
                         }
                     }
                 }, {
@@ -245,7 +247,8 @@ describe('request-debug', function() {
                         method  : 'GET',
                         headers : {
                             authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-                            host          : 'localhost'
+                            host          : 'localhost',
+                            referer : 'http://localhost:8480/auth/bottom'
                         }
                     }
                 }, {
@@ -308,7 +311,8 @@ describe('request-debug', function() {
                         method  : 'GET',
                         headers : {
                             authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-                            host          : 'localhost'
+                            host          : 'localhost',
+                            referer : 'https://localhost:8443/auth/top/http'
                         }
                     }
                 }, {
@@ -333,7 +337,8 @@ describe('request-debug', function() {
                         method  : 'GET',
                         headers : {
                             authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-                            host          : 'localhost:' + lib.ports.http
+                            host          : 'localhost:' + lib.ports.http,
+                            referer : 'http://localhost:8480/middle'
                         }
                     }
                 }, {
@@ -358,7 +363,8 @@ describe('request-debug', function() {
                         method  : 'GET',
                         headers : {
                             authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-                            host          : 'localhost:' + lib.ports.http
+                            host          : 'localhost:' + lib.ports.http,
+                            referer : 'http://localhost:8480/bottom'
                         }
                     }
                 }, {
@@ -400,7 +406,7 @@ describe('request-debug', function() {
                         headers : {
                             host             : 'localhost',
                             'content-length' : 16,
-                            'content-type'   : 'application/x-www-form-urlencoded; charset=utf-8'
+                            'content-type'   : 'application/x-www-form-urlencoded'
                         },
                         body : 'formKey=formData'
                     }

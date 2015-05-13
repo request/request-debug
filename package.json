@@ -27,7 +27,7 @@
         "mocha"         : "~1.21.4",
         "passport"      : "~0.2.0",
         "passport-http" : "~0.2.2",
-        "request"       : "~2.40.0",
+        "request"       : "~2.50.0",
         "should"        : "~4.0.4"
     },
     "dependencies" : {
