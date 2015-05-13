@@ -68,6 +68,9 @@ var fixHeader = {
     },
     referer : function(val) {
         return null;
+    },
+    'content-type' : function(val) {
+        return val.replace(/^application\/x-www-form-urlencoded(; charset=utf-8)?$/, '<application/x-www-form-urlencoded>');
     }
 };
 fixHeader['www-authenticate'] = fixHeader.authorization;

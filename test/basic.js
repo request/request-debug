@@ -400,7 +400,7 @@ describe('request-debug', function() {
                         headers : {
                             host             : 'localhost',
                             'content-length' : 16,
-                            'content-type'   : 'application/x-www-form-urlencoded'
+                            'content-type'   : '<application/x-www-form-urlencoded>'
                         },
                         body : 'formKey=formData'
                     }
