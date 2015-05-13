@@ -73,10 +73,8 @@ var fixHeader = {
         return val.replace(/^application\/x-www-form-urlencoded(; charset=utf-8)?$/, '<application/x-www-form-urlencoded>');
     },
     'content-length' : function(val, obj) {
-        // io.js has major version >= 1
-        var isNode = process.versions.node.test(/^0\./);
-        if (!isNode && obj.statusCode == 401) {
-            // io.js sends content-length here, Node.js does not
+        if (engine == 'iojs' && obj.statusCode == 401) {
+            // io.js sends content-length here, Node does not
             return null;
         }
     }

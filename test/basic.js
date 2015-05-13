@@ -1,4 +1,5 @@
-var lib     = require('./lib'),
+var engine  = require('detect-engine'),
+    lib     = require('./lib'),
     mocha   = require('mocha'),
     request = require('request'),
     should  = require('should');
@@ -23,9 +24,8 @@ describe('request-debug', function() {
     });
 
     function maybeTransferEncodingChunked(obj) {
-        // io.js has major version >= 1
-        var isNode = process.versions.node.test(/^0\./);
-        if (isNode) {
+        if (engine == 'node') {
+            // Node sends 'Transfer-Encoding: chunked' here, io.js does not
             obj['transfer-encoding'] = 'chunked';
         }
         return obj;
