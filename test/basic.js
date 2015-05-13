@@ -22,6 +22,15 @@ describe('request-debug', function() {
         lib.clearRequests();
     });
 
+    function maybeTransferEncodingChunked(obj) {
+        // io.js has major version >= 1
+        var isNode = process.versions.node.test(/^0\./);
+        if (isNode) {
+            obj['transfer-encoding'] = 'chunked';
+        }
+        return obj;
+    }
+
     it('should capture a normal request', function(done) {
         request(lib.urls.http + '/bottom', function(err, res, body) {
             should.not.exist(err);
@@ -228,13 +237,12 @@ describe('request-debug', function() {
                 }, {
                     auth : {
                         debugId : lib.debugId,
-                        headers : {
-                            connection          : '<close or keep-alive>',
-                            date                : '<date>',
-                            'transfer-encoding' : 'chunked',
-                            'www-authenticate'  : 'Digest realm="Users" <+nonce,qop>',
-                            'x-powered-by'      : 'Express',
-                        },
+                        headers : maybeTransferEncodingChunked({
+                            connection         : '<close or keep-alive>',
+                            date               : '<date>',
+                            'www-authenticate' : 'Digest realm="Users" <+nonce,qop>',
+                            'x-powered-by'     : 'Express',
+                        }),
                         statusCode : 401,
                         uri        : lib.urls.http + '/auth/bottom'
                     }
@@ -291,13 +299,12 @@ describe('request-debug', function() {
                 }, {
                     auth : {
                         debugId : lib.debugId,
-                        headers : {
-                            connection          : '<close or keep-alive>',
-                            date                : '<date>',
-                            'transfer-encoding' : 'chunked',
-                            'www-authenticate'  : 'Digest realm="Users" <+nonce,qop>',
-                            'x-powered-by'      : 'Express',
-                        },
+                        headers : maybeTransferEncodingChunked({
+                            connection         : '<close or keep-alive>',
+                            date               : '<date>',
+                            'www-authenticate' : 'Digest realm="Users" <+nonce,qop>',
+                            'x-powered-by'     : 'Express',
+                        }),
                         statusCode : 401,
                         uri        : lib.urls.https + '/auth/top/http'
                     }
