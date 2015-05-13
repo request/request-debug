@@ -1,4 +1,5 @@
-var express        = require('express'),
+var engine         = require('detect-engine'),
+    express        = require('express'),
     fs             = require('fs'),
     http           = require('http'),
     https          = require('https'),
