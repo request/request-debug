@@ -1,4 +1,5 @@
-var lib     = require('./lib'),
+var engine  = require('detect-engine'),
+    lib     = require('./lib'),
     mocha   = require('mocha'),
     request = require('request'),
     should  = require('should');
@@ -21,6 +22,14 @@ describe('request-debug', function() {
     beforeEach(function() {
         lib.clearRequests();
     });
+
+    function maybeTransferEncodingChunked(obj) {
+        if (engine == 'node') {
+            // Node sends 'Transfer-Encoding: chunked' here, io.js does not
+            obj['transfer-encoding'] = 'chunked';
+        }
+        return obj;
+    }
 
     it('should capture a normal request', function(done) {
         request(lib.urls.http + '/bottom', function(err, res, body) {
@@ -228,13 +237,12 @@ describe('request-debug', function() {
                 }, {
                     auth : {
                         debugId : lib.debugId,
-                        headers : {
-                            connection          : '<close or keep-alive>',
-                            date                : '<date>',
-                            'transfer-encoding' : 'chunked',
-                            'www-authenticate'  : 'Digest realm="Users" <+nonce,qop>',
-                            'x-powered-by'      : 'Express',
-                        },
+                        headers : maybeTransferEncodingChunked({
+                            connection         : '<close or keep-alive>',
+                            date               : '<date>',
+                            'www-authenticate' : 'Digest realm="Users" <+nonce,qop>',
+                            'x-powered-by'     : 'Express',
+                        }),
                         statusCode : 401,
                         uri        : lib.urls.http + '/auth/bottom'
                     }
@@ -291,13 +299,12 @@ describe('request-debug', function() {
                 }, {
                     auth : {
                         debugId : lib.debugId,
-                        headers : {
-                            connection          : '<close or keep-alive>',
-                            date                : '<date>',
-                            'transfer-encoding' : 'chunked',
-                            'www-authenticate'  : 'Digest realm="Users" <+nonce,qop>',
-                            'x-powered-by'      : 'Express',
-                        },
+                        headers : maybeTransferEncodingChunked({
+                            connection         : '<close or keep-alive>',
+                            date               : '<date>',
+                            'www-authenticate' : 'Digest realm="Users" <+nonce,qop>',
+                            'x-powered-by'     : 'Express',
+                        }),
                         statusCode : 401,
                         uri        : lib.urls.https + '/auth/top/http'
                     }
@@ -400,7 +407,7 @@ describe('request-debug', function() {
                         headers : {
                             host             : 'localhost',
                             'content-length' : 16,
-                            'content-type'   : 'application/x-www-form-urlencoded; charset=utf-8'
+                            'content-type'   : '<application/x-www-form-urlencoded>'
                         },
                         body : 'formKey=formData'
                     }

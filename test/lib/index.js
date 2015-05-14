@@ -1,4 +1,5 @@
-var express        = require('express'),
+var engine         = require('detect-engine'),
+    express        = require('express'),
     fs             = require('fs'),
     http           = require('http'),
     https          = require('https'),
@@ -65,6 +66,20 @@ var fixHeader = {
                 }).join(','));
         }
         return val;
+    },
+    referer : function(val) {
+        return null;
+    },
+    'content-type' : function(val) {
+        return val.replace(/^application\/x-www-form-urlencoded(; charset=utf-8)?$/, '<application/x-www-form-urlencoded>');
+    },
+    'content-length' : function(val, obj) {
+        if (engine == 'iojs' && obj.statusCode == 401) {
+            // io.js sends content-length here, Node does not
+            return null;
+        } else {
+            return val;
+        }
     }
 };
 fixHeader['www-authenticate'] = fixHeader.authorization;
@@ -74,8 +89,12 @@ exports.fixVariableHeaders = function() {
         for (var type in req) {
             for (var header in req[type].headers) {
                 if (fixHeader[header]) {
-                    req[type].headers[header] =
-                        fixHeader[header](req[type].headers[header]);
+                    var fixed = fixHeader[header](req[type].headers[header], req[type]);
+                    if (fixed === null) {
+                        delete req[type].headers[header];
+                    } else {
+                        req[type].headers[header] = fixed;
+                    }
                 }
             }
         }
