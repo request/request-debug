@@ -71,7 +71,7 @@ var fixHeader = {
     return null
   },
   'content-type' : function(val) {
-    return val.replace(/^application\/x-www-form-urlencoded( charset=utf-8)?$/, '<application/x-www-form-urlencoded>')
+    return val.replace(/^application\/x-www-form-urlencoded(; charset=utf-8)?$/, '<application/x-www-form-urlencoded>')
   },
   'content-length' : function(val, obj) {
     if (engine == 'iojs' && obj.statusCode == 401) {
