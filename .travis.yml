@@ -17,3 +17,5 @@ env:
 before_script:
  - rm -r node_modules/request/
  - npm install request@$REQUEST_VERSION
+
+sudo: false
