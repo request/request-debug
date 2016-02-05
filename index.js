@@ -56,7 +56,7 @@ module.exports = exports = function(request, log) {
               debugId    : this._debugId,
               headers    : clone(res.headers),
               statusCode : res.statusCode,
-              body       : res.body
+              body       : JSON.stringify(res.body)
             }, this)
           }
 
