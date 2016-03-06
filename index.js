@@ -26,6 +26,9 @@ module.exports = exports = function(request, log) {
       if (!this._debugId) {
 
         this.on('request', function(req) {
+          if ( this.getHeader('x-debug') === false ) {
+            return;
+          }
           var data = {
             debugId : this._debugId,
             uri     : this.uri.href,
@@ -38,6 +41,9 @@ module.exports = exports = function(request, log) {
           log('request', data, this)
 
         }).on('response', function(res) {
+          if ( this.getHeader('x-debug') === false ) {
+            return;
+          }
           if (this.callback) {
             // callback specified, request will buffer the body for
             // us, so wait until the complete event to do anything
@@ -51,6 +57,9 @@ module.exports = exports = function(request, log) {
           }
 
         }).on('complete', function(res, body) {
+          if ( this.getHeader('x-debug') === false ) {
+            return;
+          }
           if (this.callback) {
             log('response', {
               debugId    : this._debugId,
@@ -61,6 +70,9 @@ module.exports = exports = function(request, log) {
           }
 
         }).on('redirect', function() {
+          if ( this.getHeader('x-debug') === false ) {
+            return;
+          }
           var type = (this.response.statusCode == 401 ? 'auth' : 'redirect')
           log(type, {
             debugId    : this._debugId,

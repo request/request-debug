@@ -516,6 +516,22 @@ describe('request-debug', function() {
     })
   })
 
+  it('should not capture anything if header x-debug is set to false', function(done) {
+    request(
+      {
+        uri: lib.urls.http + '/bottom',
+        headers: {
+          'x-debug': false
+        }
+      },
+      function(err, res, body) {
+        should.not.exist(err)
+        lib.requests.should.eql([])
+        done()
+      }
+    )
+  })
+
   it('should not capture anything after stopDebugging()', function(done) {
     request.stopDebugging()
     request(lib.urls.http + '/bottom', function(err, res, body) {
