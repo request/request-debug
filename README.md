@@ -122,6 +122,21 @@ following:
      body: 'You are logged in as: admin' } }
 REQUEST RESULTS: null 200 You are logged in as: admin
 ```
+### setting debug off per request
+set the request header, `x-debug`, to false; e.g.
+```javascript
+request(
+  {
+    uri: 'http://google.com',
+    headers: {
+      'x-debug': false
+    },
+  },
+  function(err, res, body) {
+    console.log('REQUEST RESULTS:', err, res.statusCode, body);
+  }
+);
+```
 
 ## Compatibility
 
