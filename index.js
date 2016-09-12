@@ -6,18 +6,20 @@ module.exports = exports = function(request, log) {
   log = log || exports.log
 
   var proto
-  if (request.Request) {
-    proto = request.Request.prototype
-  } else if (request.get && request.post) {
+
+  if (!request.Request && request.get && request.post) {
     // The object returned by request.defaults() doesn't include the
     // Request property, so do this horrible thing to get at it.  Per
     // Wikipedia, port 4 is unassigned.
-    var req = request('http://localhost:4').on('error', function() { })
-    proto = req.constructor.prototype
+    var Request = request('http://localhost:4').on('error', function() { })
+    request.Request = Object.assign({}, Request);
+    request.Request.prototype = Object.assign({}, Request.prototype);
   } else {
     throw new Error(
-      "Pass the object returned by require('request') to this function.")
+      "Pass the object returned by require('request').defaults({}) to this function.")
   }
+
+  proto = request.Request.prototype
 
   if (!proto._initBeforeDebug) {
     proto._initBeforeDebug = proto.init
