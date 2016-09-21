@@ -1,92 +1,203 @@
-var clone = require('stringify-clone');
+'use strict';
 
-var debugId = 0
+/**
+ * Module dependencies.
+ */
 
-module.exports = exports = function(request, log) {
-  log = log || exports.log
+const clone = require('clone');
 
-  var proto
-  if (request.Request) {
-    proto = request.Request.prototype
-  } else if (request.get && request.post) {
-    // The object returned by request.defaults() doesn't include the
-    // Request property, so do this horrible thing to get at it.  Per
-    // Wikipedia, port 4 is unassigned.
-    var req = request('http://localhost:4').on('error', function() { })
-    proto = req.constructor.prototype
-  } else {
-    throw new Error(
-      "Pass the object returned by require('request') to this function.")
-  }
+/**
+ * Default log function.
+ */
 
-  if (!proto._initBeforeDebug) {
-    proto._initBeforeDebug = proto.init
-
-    proto.init = function() {
-      if (!this._debugId) {
-
-        this.on('request', function(req) {
-          var data = {
-            debugId : this._debugId,
-            uri     : this.uri.href,
-            method  : this.method,
-            headers : clone(this.headers)
-          }
-          if (this.body) {
-            data.body = this.body.toString('utf8')
-          }
-          log('request', data, this)
-
-        }).on('response', function(res) {
-          if (this.callback) {
-            // callback specified, request will buffer the body for
-            // us, so wait until the complete event to do anything
-          } else {
-            // cannot get body since no callback specified
-            log('response', {
-              debugId    : this._debugId,
-              headers    : clone(res.headers),
-              statusCode : res.statusCode
-            }, this)
-          }
-
-        }).on('complete', function(res, body) {
-          if (this.callback) {
-            log('response', {
-              debugId    : this._debugId,
-              headers    : clone(res.headers),
-              statusCode : res.statusCode,
-              body       : res.body
-            }, this)
-          }
-
-        }).on('redirect', function() {
-          var type = (this.response.statusCode == 401 ? 'auth' : 'redirect')
-          log(type, {
-            debugId    : this._debugId,
-            statusCode : this.response.statusCode,
-            headers    : clone(this.response.headers),
-            uri        : this.uri.href
-          }, this)
-        })
-
-        this._debugId = ++debugId
-      }
-
-      return proto._initBeforeDebug.apply(this, arguments)
-    }
-  }
-
-  if (!request.stopDebugging) {
-    request.stopDebugging = function() {
-      proto.init = proto._initBeforeDebug
-      delete proto._initBeforeDebug
-    }
-  }
-}
-
-exports.log = function(type, data, r) {
+function log(type, data, r) {
   var toLog = {}
   toLog[type] = data
   console.error(toLog)
 }
+
+
+/**
+ * Class `RequestDebug`.
+ */
+
+class RequestDebug {
+
+  /**
+   * Static `defaults` helper.
+   */
+
+  static defaults(request, options) {
+    return new RequestDebug(request, options);
+  }
+
+  /**
+   * Default constructor.
+   */
+
+  constructor(request, options) {
+    if (!options) {
+      options = {}
+    }
+
+    // Check for any object from `require('request')` or from `require('request').defaults({...})`.
+    if (!(request && request.defaults && (request.Request || (request.get && request.post)))) {
+      throw new Error('Invalid request module object');
+    }
+
+    this.debugging = true;
+    this.id = 1;
+    this.options = clone(options);
+    this.logger(this.log = options.logger || log);
+    this.client = request.defaults(options);
+
+    // Wrap common `request` methods.
+    ['delete', 'get', 'head', 'patch', 'post', 'put'].forEach(method => {
+      this[method] = (data, options, callback) => {
+        return this.fn(method, data, options, callback);
+      }
+    });
+  }
+
+  /**
+   * `defaults` helper.
+   */
+
+  defaults(options) {
+    if (!this.client.defaults || typeof this.client.defaults !== 'function') {
+      throw new Error('Request does not support recursive method `defaults`');
+    }
+
+    const instance = new RequestDebug(this.client, Object.assign({}, this.options, options));
+
+    // Pass the internal state to instance.
+    instance.debugging = this.debugging;
+    instance.log = this.log;
+
+    return instance;
+  }
+
+  /**
+   * Wrapper.
+   */
+
+  fn(method, data, options, callback) {
+    let request;
+
+    if (method) {
+      request = this.client[method.toLowerCase()](data, options, callback);
+    } else {
+      request = this.client(data, options, callback);
+    }
+
+
+    if (!this.debugging) {
+      return request;
+    }
+
+    const id = this.id++;
+    const self = this;
+
+    return request.on('error', function(error) {
+      const data = {
+        debugId: id,
+        error,
+        headers: clone(this.headers),
+        method: this.method.toUpperCase(),
+        uri: this.uri.href,
+      }
+
+      self.log('error', data, this);
+    }).on('request', function(request) {
+      const data = {
+        debugId: id,
+        headers: clone(this.headers),
+        method: this.method.toUpperCase(),
+        uri: this.uri.href
+      };
+
+      if (this.body) {
+        data.body = this.body.toString('utf8');
+      }
+
+      self.log('request', data, this);
+    }).on('response', function(response) {
+      if (this.callback) {
+        // Callback specified so `request` will buffer the body for
+        // us. Wait for the `complete` event to do anything.
+        return;
+      }
+
+      // Cannot get body since no callback has been specified.
+      self.log('response', {
+        debugId: id,
+        headers: clone(response.headers),
+        method: this.method,
+        statusCode: response.statusCode
+      }, this);
+    }).on('redirect', function() {
+      const type = (this.response.statusCode == 401 ? 'auth' : 'redirect');
+
+      self.log(type, {
+        debugId: id,
+        headers: clone(this.response.headers),
+        statusCode: this.response.statusCode,
+        uri: this.uri.href
+      }, this);
+    }).on('complete', function(response, body) {
+      if (!this.callback) {
+        return;
+      }
+
+      self.log('response', {
+        body: clone(response.body, false),
+        debugId: id,
+        headers: clone(response.headers),
+        method: this.method,
+        statusCode: response.statusCode
+      }, this);
+    });
+  }
+
+  /**
+   * Logger function.
+   */
+
+  logger(fn) {
+    if (typeof(fn) !== 'function') {
+      throw new Error('Logger must be a function');
+    }
+
+    this.log = fn;
+  }
+
+  /**
+   * Workaround for not specifying the method.
+   */
+
+  request(options, callback) {
+    return this.fn(null, options, callback);
+  }
+
+  /**
+   * Start debugging.
+   */
+
+  startDebugging() {
+    this.debugging = true;
+  }
+
+  /**
+   * Stop debugging.
+   */
+
+  stopDebugging() {
+    this.debugging = false;
+  }
+}
+
+/**
+ * Export `RequestDebug`.
+ */
+
+module.exports = RequestDebug;

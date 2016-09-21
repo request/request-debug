@@ -1,37 +1,40 @@
 {
-  "name"        : "request-debug",
-  "author"      : "James Nylen <jnylen@gmail.com>",
-  "description" : "Library to assist with debugging HTTP(s) requests made by the request module.",
-  "version"     : "0.2.0",
-  "repository"  : {
-    "type" : "git",
-    "url"  : "https://github.com/request/request-debug"
+  "name": "request-debug",
+  "author": "James Nylen <jnylen@gmail.com>",
+  "description": "Library to assist with debugging HTTP(s) requests made by the request module.",
+  "version": "0.2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/request/request-debug"
   },
-  "bugs" : {
-    "url" : "https://github.com/request/request-debug/issues"
+  "bugs": {
+    "url": "https://github.com/request/request-debug/issues"
   },
-  "license"  : "MIT",
-  "keywords" : [
+  "license": "MIT",
+  "keywords": [
     "request",
     "debug",
     "http",
     "https",
     "headers"
   ],
-  "scripts" : {
-    "test" : "node node_modules/.bin/mocha"
+  "engines": {
+    "node": ">=4"
   },
-  "main"            : "index.js",
-  "devDependencies" : {
-    "detect-engine" : "~1.0.2",
-    "express"       : "~4.8.6",
-    "mocha"         : "~1.21.4",
-    "passport"      : "~0.2.0",
-    "passport-http" : "~0.2.2",
-    "request"       : "~2.50.0",
-    "should"        : "~4.0.4"
+  "scripts": {
+    "test": "mocha"
   },
-  "dependencies" : {
-    "stringify-clone": "^1.0.0"
+  "main": "index.js",
+  "dependencies": {
+    "clone": "^1.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^3.0.2",
+    "should": "^11.1.0",
+    "sinon": "^1.17.6",
+    "request": "^2.19.0"
+  },
+  "peerDependencies": {
+    "request": "^2.19.0"
   }
 }

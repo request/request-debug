@@ -1,28 +1,47 @@
 # request-debug [![Build status](https://img.shields.io/travis/request/request-debug.svg?style=flat)](https://travis-ci.org/request/request-debug) [![npm package](http://img.shields.io/npm/v/request-debug.svg?style=flat)](https://www.npmjs.org/package/request-debug)
 
 This Node.js module provides an easy way to monitor HTTP(S) requests performed
-by the [`request` module](https://github.com/request/request), and their
+by the [`request` module](https://github.com/request/request) (2.19.0+), and their
 responses from external servers.
 
 ## Usage
 
-Basic usage is to require the module and call it, passing in the object
-returned by `require('request')`:
+Basic usage is to require the module and call it:
 
 ```js
-var request = require('request');
+const RequestDebug = require('request-debug');
 
-require('request-debug')(request);
+const client = new RequestDebug();
 ```
 
-This will set up event handlers on every request performed with the `request`
+This will set up event handlers on every request performed with the `client`
 variable from this point.
+
+The constructor `RequestDebug` supports all options of `request` (see options [here](https://github.com/request/request#requestoptions-callback)):
+```js
+const RequestDebug = require('request-debug');
+
+const client = new RequestDebug({
+  baseUrl: 'http://www.google.com',
+  json: true
+});
+```
 
 You can also specify a function to handle request or response data:
 
 ```js
-require('request-debug')(request, function(type, data, r) {
+const client = new RequestDebug ({
+  logger: (type, data, r) => {
     // put your request or response handling logic here
+  }
+});
+```
+or by method `logger`:
+```js
+const client = new RequestDebug ();
+
+request.logger((type, data, r) => {
+  // put your request or response handling logic here
 });
 ```
 
@@ -51,82 +70,75 @@ responses and other events.
 The default handling function writes the data to *stderr* in Node's JSON-like
 object display format.  See the example below for more details.
 
-To disable debugging, call `request.stopDebugging()` (this function only exists
-if debugging has already been enabled).  Any requests that are in progress when
+To disable debugging, call `request.stopDebugging()`.  Any requests that are in progress when
 `stopDebugging()` is called will still generate debug events.
 
 ## Example
 
 ```js
-var request = require('request');
+const client = new RequestDebug();
 
-require('request-debug')(request);
-
-// digest.php is example 2 from:
-// http://php.net/manual/en/features.http-auth.php
-
-request({
-    uri  : 'http://nylen.tv/digest.php',
-    auth : {
-        user : 'admin',
-        pass : 'mypass',
-        sendImmediately : false
-    },
-    rejectUnauthorized : false,
+client.request({
+    uri  : 'https://raw.githubusercontent.com/request/request-debug/master/.gitignore',
 }, function(err, res, body) {
-    console.log('REQUEST RESULTS:', err, res.statusCode, body);
+    console.log('REQUEST RESULTS:', err, res.statusCode);
 });
 ```
 
-Unless you provide your own function as the second parameter to the
-`request-debug` call, this will produce console output similar to the
-following:
+`request-debug` also supports calling `delete`, `get`, `head`, `patch`, `post` and `put` :
+
+```js
+const client = new RequestDebug();
+
+client.get('https://github.com/request/request-debug');
+
+client.post('https://github.com/request/request-debug');
+
+client.head('https://github.com/request/request-debug');
+```
+
+Unless you provide your own logger function in options on the `request-debug` constructor call or set it via `logger` method, this will produce console output similar to thefollowing:
 
 ```js
 { request:
    { debugId: 1,
-     uri: 'http://nylen.tv/digest.php',
+     headers: { host: 'raw.githubusercontent.com' },
      method: 'GET',
-     headers: { host: 'nylen.tv' } } }
-{ auth:
-   { debugId: 1,
-     statusCode: 401,
-     headers:
-      { date: 'Mon, 20 Oct 2014 03:34:58 GMT',
-        server: 'Apache/2.4.6 (Debian)',
-        'x-powered-by': 'PHP/5.5.6-1',
-        'www-authenticate': 'Digest realm="Restricted area",qop="auth",nonce="544482e2556d9",opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
-        'content-length': '39',
-        'keep-alive': 'timeout=5, max=100',
-        connection: 'Keep-Alive',
-        'content-type': 'text/html' },
-     uri: 'http://nylen.tv/digest.php' } }
-{ request:
-   { debugId: 1,
-     uri: 'http://nylen.tv/digest.php',
-     method: 'GET',
-     headers:
-      { authorization: 'Digest username="admin", realm="Restricted area", nonce="544482e2556d9", uri="/digest.php", qop=auth, response="e833c7fa52e8d42fae3ca784b96dfd38", nc=00000001, cnonce="ab6ff3dd95a0449e990a6c8465a6bb26", opaque="cdce8a5c95a1427d74df7acbf41c9ce0"',
-        host: 'nylen.tv' } } }
+     uri: 'https://raw.githubusercontent.com/request/request-debug/master/.gitignore' } }
+REQUEST RESULTS: null 200 node_modules
+
 { response:
-   { debugId: 1,
+   { body: 'node_modules\n',
+     debugId: 1,
      headers:
-      { date: 'Mon, 20 Oct 2014 03:34:58 GMT',
-        server: 'Apache/2.4.6 (Debian)',
-        'x-powered-by': 'PHP/5.5.6-1',
-        'content-length': '27',
-        'keep-alive': 'timeout=5, max=100',
-        connection: 'Keep-Alive',
-        'content-type': 'text/html' },
-     statusCode: 200,
-     body: 'You are logged in as: admin' } }
-REQUEST RESULTS: null 200 You are logged in as: admin
+      { 'content-security-policy': 'default-src \'none\'; style-src \'unsafe-inline\'',
+        'strict-transport-security': 'max-age=31536000',
+        'x-content-type-options': 'nosniff',
+        'x-frame-options': 'deny',
+        'x-xss-protection': '1; mode=block',
+        etag: '"3c3629e647f5ddf82548912e337bea9826b434af"',
+        'content-type': 'text/plain; charset=utf-8',
+        'cache-control': 'max-age=300',
+        'x-geo-block-list': '',
+        'x-github-request-id': 'B91F1215:5247:1A4348B:57E4F4E1',
+        'content-length': '13',
+        'accept-ranges': 'bytes',
+        date: 'Fri, 23 Sep 2016 09:25:24 GMT',
+        via: '1.1 varnish',
+        connection: 'close',
+        'x-served-by': 'cache-lcy1123-LCY',
+        'x-cache': 'HIT',
+        'x-cache-hits': '2',
+        vary: 'Authorization,Accept-Encoding',
+        'access-control-allow-origin': '*',
+        'x-fastly-request-id': '6c0b96eef9098ba115b0f874a4ec48e9086b0669',
+        expires: 'Fri, 23 Sep 2016 09:30:24 GMT',
+        'source-age': '35' },
+     method: 'GET',
+     statusCode: 200 } }
 ```
 
 ## Compatibility
 
-Tested with Node.js versions 0.8.x, 0.10.x, and 0.11.x on Travis, and a bunch
-of different `request` versions.
-
-Does not work with `request` versions older than 2.22.0 (July 2013).  Tests
-don't start passing until version 2.28.0 (December 2013).
+Tested with Node.js versions 4.0.x, 5.0.x, 6.0.x and 6.6.x on Travis, and a bunch
+of different `request` versions (minimum 2.19.0).
