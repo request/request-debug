@@ -1,527 +1,281 @@
-var engine  = require('detect-engine'),
-  lib     = require('./lib'),
-  mocha   = require('mocha'),
-  request = require('request'),
-  should  = require('should')
+'use strict';
 
-describe('request-debug', function() {
-  var proto = request.Request.prototype
+/**
+ * Module dependencies.
+ */
 
-  before(function() {
-    lib.enableDebugging(request)
-    lib.startServers()
+require('./util/sinon-hook');
+const RequestDebug = require('../.');
+const mocha = require('mocha');
+const request = require('request');
+const should  = require('should');
 
-    request = request.defaults({
-      headers : {
-        host : 'localhost'
-      },
-      rejectUnauthorized : false
-    })
-  })
+/**
+ * Fake API links.
+ */
 
-  beforeEach(function() {
-    lib.clearRequests()
-  })
+const APInok = 'http://random.foo.bar';
+const APIok = 'http://jsonplaceholder.typicode.com';
+const requestConfig = { timeout: 5000 };
 
-  function maybeTransferEncodingChunked(obj) {
-    if (engine == 'node') {
-      // Node sends 'Transfer-Encoding: chunked' here, io.js does not
-      obj['transfer-encoding'] = 'chunked'
-    }
-    return obj
-  }
+/**
+ * `RequestDebug` testing.
+ */
 
-  it('should capture a normal request', function(done) {
-    request(lib.urls.http + '/bottom', function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : 'Request OK'
-          }
+describe('RequestDebug', () => {
+  describe('exports()', () => {
+    it('should set a default logger', function() {
+      (RequestDebug(request)).log.should.not.be.null();
+    });
+
+    it('should enable debugging as default', function() {
+      (RequestDebug(request)).debugging.should.equal(true);
+    });
+
+    it('should initialize the request id with `1`', function() {
+      (RequestDebug(request)).id.should.equal(1);;
+    });
+
+    it('should set `options`', function() {
+      (RequestDebug(request, { foo: 'bar' })).options.should.eql({ foo: 'bar' });
+    });
+
+    it('should call `request.defaults()`', function() {
+      this.sinon.spy(request, 'defaults');
+
+      RequestDebug(request);
+
+      request.defaults.callCount.should.equal(1);
+    });
+
+    ['delete', 'get', 'head', 'patch', 'post', 'put'].forEach(method => {
+      it(`should wrap \`request\` method \`${method}\``, function() {
+        (RequestDebug(request)).should.have.property(method);
+      });
+    });
+  });
+
+  describe('defaults()', () => {
+    it('should return an instance with same state', function() {
+      const logger = () => {};
+      const requestDebug = RequestDebug(request, { foo: 'bar', logger });
+
+      requestDebug.stopDebugging();
+
+      if (request.defaults({}).defaults) {
+        const requestDebugCopy = requestDebug.defaults({ foo: 'biz', bar: 'baz' });
+
+        should.exist(requestDebugCopy);
+        requestDebugCopy.debugging.should.equal(false);
+        requestDebugCopy.log.should.equal(logger);
+        requestDebugCopy.options.should.eql({ foo: 'biz', logger, bar: 'baz' });
+      } else {
+        try {
+          requestDebug.defaults({ foo: 'biz', bar: 'baz' });
+        } catch (e) {
+          e.message.should.equal('Request does not support recursive method `defaults`');
         }
-      ])
-      done()
-    })
-  })
-
-  it('should capture a request with no callback', function(done) {
-    var r = request(lib.urls.http + '/bottom')
-    r.on('complete', function(res) {
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200
-          }
-        }
-      ])
-      done()
-    })
-  })
-
-  it('should capture a redirect', function(done) {
-    request(lib.urls.http + '/middle', function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/middle',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          redirect : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '41',
-              'content-type'   : 'text/plain; charset=utf-8',
-              date             : '<date>',
-              location         : '/bottom',
-              vary             : 'Accept',
-              'x-powered-by'   : 'Express',
-            },
-            statusCode : 302,
-            uri        : lib.urls.http + '/bottom'
-          }
-        }, {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              host : 'localhost:' + lib.ports.http
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : 'Request OK'
-          }
-        }
-      ])
-      done()
-    })
-  })
-
-  it('should capture a cross-protocol redirect', function(done) {
-    request(lib.urls.https + '/middle/http', function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.https + '/middle/http',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          redirect : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '62',
-              'content-type'   : 'text/plain; charset=utf-8',
-              date             : '<date>',
-              location         : lib.urls.http + '/bottom',
-              vary             : 'Accept',
-              'x-powered-by'   : 'Express',
-            },
-            statusCode : 302,
-            uri        : lib.urls.http + '/bottom'
-          }
-        }, {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              host : 'localhost:' + lib.ports.http
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : 'Request OK'
-          }
-        }
-      ])
-      done()
-    })
-  })
-
-  it('should capture an auth challenge', function(done) {
-    request(lib.urls.http + '/auth/bottom', {
-      auth : {
-        user : 'admin',
-        pass : 'mypass',
-        sendImmediately : false
       }
-    }, function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/auth/bottom',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          auth : {
-            debugId : lib.debugId,
-            headers : maybeTransferEncodingChunked({
-              connection         : '<close or keep-alive>',
-              date               : '<date>',
-              'www-authenticate' : 'Digest realm="Users" <+nonce,qop>',
-              'x-powered-by'     : 'Express',
-            }),
-            statusCode : 401,
-            uri        : lib.urls.http + '/auth/bottom'
-          }
-        }, {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/auth/bottom',
-            method  : 'GET',
-            headers : {
-              authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-              host          : 'localhost'
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : 'Request OK'
-          }
-        }
-      ])
-      done()
-    })
-  })
+    });
+  });
 
-  it('should capture a complicated redirect', function(done) {
-    request(lib.urls.https + '/auth/top/http', {
-      auth : {
-        user : 'admin',
-        pass : 'mypass',
-        sendImmediately : false
+  describe('fn()', () => {
+    it('should not capture anything if debugging is set to `false`', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.stopDebugging();
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        should.exist(res);
+        should.exist(body);
+
+        requestDebug.log.callCount.should.equal(0);
+
+        done();
+      });
+    });
+
+    it('should not increment the debug id if debugging is set to `false`', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: () => {} });
+      const initialId = requestDebug.id;
+
+      requestDebug.stopDebugging();
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        should.exist(res);
+        should.exist(body);
+
+        requestDebug.id.should.equal(initialId);
+
+        done();
+      });
+    });
+
+    it('should increment the debug id', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: () => {} });
+      const initialId = requestDebug.id;
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        should.exist(res);
+        should.exist(body);
+
+        requestDebug.id.should.equal(initialId + 1);
+
+        done();
+      });
+    });
+
+    it('should log an `error` event', function(done) {
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.get(APInok, requestConfig, function(err, res, body) {
+        should.exist(err);
+        should.not.exist(res);
+        should.not.exist(body);
+      }).on('error', () => {
+        requestDebug.log.callCount.should.equal(2);
+
+        done();
+      });
+    });
+
+    it('should log a `request` event', function(done) {
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.get(APInok, requestConfig, function(err, res, body) {
+        should.exist(err);
+        should.not.exist(res);
+        should.not.exist(body);
+      }).on('request', () => {
+        requestDebug.log.callCount.should.equal(1);
+
+        done();
+      });
+    });
+
+    it('should log a `response` event', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        should.exist(res);
+        should.exist(body);
+      }).on('response', () => {
+        requestDebug.log.callCount.should.equal(1);
+
+        done();
+      });
+    });
+
+    it('should log a `complete` event', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        should.exist(res);
+        should.exist(body);
+      }).on('complete', function(response, body) {
+        requestDebug.log.callCount.should.equal(2);
+        requestDebug.log.firstCall.args[0].should.equal('request');
+        requestDebug.log.secondCall.args[0].should.equal('response');
+        requestDebug.log.secondCall.args[1].should.eql({
+          body: response.body,
+          debugId: requestDebug.id - 1,
+          headers: response.headers,
+          method: this.method,
+          statusCode: response.statusCode
+        });
+
+        done();
+      });
+    });
+  });
+
+  describe('logger()', () => {
+    it('should throw if logger is not a function', function() {
+      try {
+        RequestDebug(request, { logger: 'foo' });
+
+        should.fail();
+      } catch (e) {
+        e.message.should.equal('Logger must be a function')
       }
-    }, function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.https + '/auth/top/http',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          auth : {
-            debugId : lib.debugId,
-            headers : maybeTransferEncodingChunked({
-              connection         : '<close or keep-alive>',
-              date               : '<date>',
-              'www-authenticate' : 'Digest realm="Users" <+nonce,qop>',
-              'x-powered-by'     : 'Express',
-            }),
-            statusCode : 401,
-            uri        : lib.urls.https + '/auth/top/http'
-          }
-        }, {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.https + '/auth/top/http',
-            method  : 'GET',
-            headers : {
-              authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-              host          : 'localhost'
-            }
-          }
-        }, {
-          redirect : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '62',
-              'content-type'   : 'text/plain; charset=utf-8',
-              date             : '<date>',
-              location         : lib.urls.http + '/middle',
-              vary             : 'Accept',
-              'x-powered-by'   : 'Express',
-            },
-            statusCode : 302,
-            uri        : lib.urls.http + '/middle'
-          }
-        }, {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/middle',
-            method  : 'GET',
-            headers : {
-              authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-              host          : 'localhost:' + lib.ports.http
-            }
-          }
-        }, {
-          redirect : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '41',
-              'content-type'   : 'text/plain; charset=utf-8',
-              date             : '<date>',
-              location         : '/bottom',
-              vary             : 'Accept',
-              'x-powered-by'   : 'Express',
-            },
-            statusCode : 302,
-            uri        : lib.urls.http + '/bottom'
-          }
-        }, {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              authorization : 'Digest username="admin" <+realm,nonce,uri,qop,response,nc,cnonce>',
-              host          : 'localhost:' + lib.ports.http
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : 'Request OK'
-          }
-        }
-      ])
-      done()
-    })
-  })
+    });
 
-  it('should capture POST data and 404 responses', function(done) {
-    request({
-      uri    : lib.urls.http + '/bottom',
-      method : 'POST',
-      form   : {
-        formKey : 'formData'
-      }
-    }, function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'POST',
-            headers : {
-              host             : 'localhost',
-              'content-length' : 16,
-              'content-type'   : '<application/x-www-form-urlencoded>'
-            },
-            body : 'formKey=formData'
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '20',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 404,
-            body       : 'Cannot POST /bottom\n'
-          }
-        }
-      ])
-      done()
-    })
-  })
+    it('should set an instance logger', function() {
+      (RequestDebug(request)).log.should.be.type('function');
+    });
 
-  it('should capture JSON responses', function(done) {
-    request({
-      uri  : lib.urls.http + '/bottom',
-      json : true
-    }, function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              accept : 'application/json',
-              host   : 'localhost'
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '15',
-              'content-type'   : 'application/json; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : {
-              key : 'value'
-            }
-          }
-        }
-      ])
-      done()
-    })
-  })
+    it('should set the logger on the instance', function() {
+      (RequestDebug(request, { logger: () => {} })).log.should.be.type('function');
+    });
+  });
 
-  it('should work with the result of request.defaults()', function(done) {
-    proto.should.have.property('_initBeforeDebug')
-    proto.init = proto._initBeforeDebug
-    delete proto._initBeforeDebug
+  describe('request()', () => {
+    it('should call with default method `GET`', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
 
-    request = require('request').defaults({
-      headers : {
-        host : 'localhost'
-      },
-    })
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
-    lib.enableDebugging(request)
+      requestDebug.request({ uri: APIok }, function(err, res, body) {
+        should.not.exist(err);
+        should.exist(res);
+        should.exist(body);
+      }).on('response', function() {
+        this.method.should.equal('GET');
 
-    request(lib.urls.http + '/bottom', function(err, res, body) {
-      should.not.exist(err)
-      lib.fixVariableHeaders()
-      lib.requests.should.eql([
-        {
-          request : {
-            debugId : lib.debugId,
-            uri     : lib.urls.http + '/bottom',
-            method  : 'GET',
-            headers : {
-              host : 'localhost'
-            }
-          }
-        }, {
-          response : {
-            debugId : lib.debugId,
-            headers : {
-              connection       : '<close or keep-alive>',
-              'content-length' : '10',
-              'content-type'   : 'text/html; charset=utf-8',
-              date             : '<date>',
-              etag             : 'W/"<etag>"',
-              'x-powered-by'   : 'Express'
-            },
-            statusCode : 200,
-            body       : 'Request OK'
-          }
-        }
-      ])
-      done()
-    })
-  })
+        requestDebug.log.callCount.should.equal(1);
 
-  it('should not capture anything after stopDebugging()', function(done) {
-    request.stopDebugging()
-    request(lib.urls.http + '/bottom', function(err, res, body) {
-      should.not.exist(err)
-      lib.requests.should.eql([])
-      done()
-    })
-  })
-})
+        done();
+      });
+    });
+  });
+
+  describe('startDebugging()', () => {
+    it('should capture after startDebugging()', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.stopDebugging();
+      requestDebug.startDebugging();
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        requestDebug.log.callCount.should.equal(1);
+
+        done();
+      });
+    });
+  });
+
+  describe('stopDebugging()', () => {
+    it('should not capture anything after stopDebugging()', function(done) {
+      this.timeout(requestConfig.timeout + 2000);
+
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
+
+      requestDebug.stopDebugging();
+
+      requestDebug.get(APIok, requestConfig, function(err, res, body) {
+        should.not.exist(err);
+        requestDebug.log.callCount.should.equal(0);
+
+        done();
+      });
+    });
+  });
+});
