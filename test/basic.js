@@ -23,56 +23,34 @@ const requestConfig = { timeout: 5000 };
  */
 
 describe('RequestDebug', () => {
-  describe('static defaults()', () => {
-    it('should return an instance of `RequestDebug`', function() {
-      RequestDebug.defaults(request, {}).should.be.instanceOf(RequestDebug);
-    });
-
-    it('should set `options` in the returned instance', function() {
-      [{ foo: 'bar' }, { foo: 'bar', logger: () => {} }].forEach(options => {
-          RequestDebug.defaults(request, options).options.should.eql(options);
-      });
-    });
-
-    it('should throw if `request` is invalid', function () {
-      [null, {}, { Request: 'foo' }, { defaults: 'foo' }, { defaults: 'foo', get: 'bar' }].forEach(dummyRequest => {
-        try {
-          RequestDebug.defaults(dummyRequest, {});
-        } catch (e) {
-          e.message.should.equal('Invalid request module object');
-        }
-      });
-    })
-  });
-
-  describe('constructor()', () => {
+  describe('exports()', () => {
     it('should set a default logger', function() {
-      (new RequestDebug(request)).log.should.not.be.null();
+      (RequestDebug(request)).log.should.not.be.null();
     });
 
     it('should enable debugging as default', function() {
-      (new RequestDebug(request)).debugging.should.equal(true);
+      (RequestDebug(request)).debugging.should.equal(true);
     });
 
     it('should initialize the request id with `1`', function() {
-      (new RequestDebug(request)).id.should.equal(1);;
+      (RequestDebug(request)).id.should.equal(1);;
     });
 
     it('should set `options`', function() {
-      (new RequestDebug(request, { foo: 'bar' })).options.should.eql({ foo: 'bar' });
+      (RequestDebug(request, { foo: 'bar' })).options.should.eql({ foo: 'bar' });
     });
 
     it('should call `request.defaults()`', function() {
       this.sinon.spy(request, 'defaults');
 
-      new RequestDebug(request);
+      RequestDebug(request);
 
       request.defaults.callCount.should.equal(1);
     });
 
     ['delete', 'get', 'head', 'patch', 'post', 'put'].forEach(method => {
       it(`should wrap \`request\` method \`${method}\``, function() {
-        (new RequestDebug(request)).should.have.property(method);
+        (RequestDebug(request)).should.have.property(method);
       });
     });
   });
@@ -80,7 +58,7 @@ describe('RequestDebug', () => {
   describe('defaults()', () => {
     it('should return an instance with same state', function() {
       const logger = () => {};
-      const requestDebug = new RequestDebug(request, { foo: 'bar', logger });
+      const requestDebug = RequestDebug(request, { foo: 'bar', logger });
 
       requestDebug.stopDebugging();
 
@@ -105,7 +83,7 @@ describe('RequestDebug', () => {
     it('should not capture anything if debugging is set to `false`', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.stopDebugging();
 
@@ -123,7 +101,7 @@ describe('RequestDebug', () => {
     it('should not increment the debug id if debugging is set to `false`', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: () => {} });
+      const requestDebug = RequestDebug(request, { logger: () => {} });
       const initialId = requestDebug.id;
 
       requestDebug.stopDebugging();
@@ -142,7 +120,7 @@ describe('RequestDebug', () => {
     it('should increment the debug id', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: () => {} });
+      const requestDebug = RequestDebug(request, { logger: () => {} });
       const initialId = requestDebug.id;
 
       requestDebug.get(APIok, requestConfig, function(err, res, body) {
@@ -157,7 +135,7 @@ describe('RequestDebug', () => {
     });
 
     it('should log an `error` event', function(done) {
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.get(APInok, requestConfig, function(err, res, body) {
         should.exist(err);
@@ -171,7 +149,7 @@ describe('RequestDebug', () => {
     });
 
     it('should log a `request` event', function(done) {
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.get(APInok, requestConfig, function(err, res, body) {
         should.exist(err);
@@ -187,7 +165,7 @@ describe('RequestDebug', () => {
     it('should log a `response` event', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.get(APIok, requestConfig, function(err, res, body) {
         should.not.exist(err);
@@ -203,7 +181,7 @@ describe('RequestDebug', () => {
     it('should log a `complete` event', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.get(APIok, requestConfig, function(err, res, body) {
         should.not.exist(err);
@@ -229,7 +207,7 @@ describe('RequestDebug', () => {
   describe('logger()', () => {
     it('should throw if logger is not a function', function() {
       try {
-        new RequestDebug(request, { logger: 'foo' });
+        RequestDebug(request, { logger: 'foo' });
 
         should.fail();
       } catch (e) {
@@ -238,11 +216,11 @@ describe('RequestDebug', () => {
     });
 
     it('should set an instance logger', function() {
-      (new RequestDebug(request)).log.should.be.type('function');
+      (RequestDebug(request)).log.should.be.type('function');
     });
 
     it('should set the logger on the instance', function() {
-      (new RequestDebug(request, { logger: () => {} })).log.should.be.type('function');
+      (RequestDebug(request, { logger: () => {} })).log.should.be.type('function');
     });
   });
 
@@ -250,7 +228,7 @@ describe('RequestDebug', () => {
     it('should call with default method `GET`', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.request({ uri: APIok }, function(err, res, body) {
         should.not.exist(err);
@@ -270,7 +248,7 @@ describe('RequestDebug', () => {
     it('should capture after startDebugging()', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.stopDebugging();
       requestDebug.startDebugging();
@@ -288,7 +266,7 @@ describe('RequestDebug', () => {
     it('should not capture anything after stopDebugging()', function(done) {
       this.timeout(requestConfig.timeout + 2000);
 
-      const requestDebug = new RequestDebug(request, { logger: this.sinon.stub() });
+      const requestDebug = RequestDebug(request, { logger: this.sinon.stub() });
 
       requestDebug.stopDebugging();
 

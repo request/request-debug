@@ -197,7 +197,7 @@ class RequestDebug {
 }
 
 /**
- * Export `RequestDebug`.
+ * Export `RequestDebug.defaults`.
  */
 
-module.exports = RequestDebug;
+module.exports = RequestDebug.defaults;
