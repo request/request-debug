@@ -32,6 +32,12 @@ module.exports = exports = function(request, log) {
             method  : this.method,
             headers : clone(this.headers)
           }
+          if (this._form) {
+            // getBuffer() was added in form-data 2.5.0
+            // But request still bundles form-data 2.3.2, so... monkey-patch
+            this._form.getBuffer = require('form-data').prototype.getBuffer;
+            data.formdata = this._form.getBuffer()
+          }
           if (this.body) {
             data.body = this.body.toString('utf8')
           }
